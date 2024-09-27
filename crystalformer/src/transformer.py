@@ -8,6 +8,7 @@ import numpy as np
 
 from crystalformer.src.attention import MultiHeadAttention
 from crystalformer.src.wyckoff import wmax_table, dof0_table
+import pandas as pd
 
 def make_transformer(key, Nf, Kx, Kl, n_max, h0_size, num_layers, num_heads, key_size, model_size, embed_size, atom_types, wyck_types, dropout_rate, widening_factor=4, sigmamin=1e-3):
     
@@ -152,7 +153,13 @@ def make_transformer(key, Nf, Kx, Kl, n_max, h0_size, num_layers, num_heads, key
         
         h = h.reshape(n, 5, -1)
         h_al, h_x, h_y, h_z, w_logit = h[:, 0, :], h[:, 1, :], h[:, 2, :], h[:, 3, :], h[:, 4, :]
-    
+
+        latent_space = jnp.array([])
+        latent_space = jnp.concatenate([h_al, h_x, h_y, h_z, w_logit], axis=1)
+        latent_space_np = jnp.array(latent_space)
+        df_latent_space = pd.DataFrame(latent_space_np)
+        df_latent_space.to_csv(f'latent_space.csv', index=False)
+
         # handle coordinate related params 
         h_x = renormalize(h_x)
         h_y = renormalize(h_y)
@@ -222,6 +229,12 @@ def make_transformer(key, Nf, Kx, Kl, n_max, h0_size, num_layers, num_heads, key
         h = h.reshape(5*n, output_size) # (5*n, output_size)
 
         h = jnp.concatenate( [h0, h], axis = 0) # (5*n+1, output_size)
+
+        h_sample = jnp.array([])
+        h_sample = jnp.concatenate([h], axis=0)
+        h_sample_np = jnp.array(h_sample)
+        df_h_sample = pd.DataFrame(h_sample_np)
+        df_h_sample.to_csv(f'h_values.csv', index=False)
 
         return h
  
