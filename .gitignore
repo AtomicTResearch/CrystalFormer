@@ -3,4 +3,4 @@ job*
 *.out
 __pycache__/
 crystalformer/epoch_003800.pkl
-crystalformer/gpu_scripts.md
+.DS_Store
